@@ -63,7 +63,6 @@ public class day1 {
             adjList.get(u).add(v);
             adjList.get(v).add(u);
         }
-
         return adjList;
 
     }

@@ -75,58 +75,81 @@ public class Day3 {
     // Surrounded regions
     // Done using BFS on the O tha is at boundary.
     // Can be done using DFS also.
-    public static char[][] fill(char[][] matrix) {
-        int row = matrix.length;
-        int col = matrix[0].length;
+    public char[][] fillSurroundedRegion(char[][] mat) {
 
-        char[][] ans = new char[row][col];
+        int rows = mat.length;
+        int cols = mat[0].length;
 
-        // We will perform bfs
-        boolean[][] visited = new boolean[row][col];
+        // make deep copy of mat
+        char[][] ans = new char[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            ans[i] = Arrays.copyOf(mat[i], mat[i].length);
+        }
+
+        // Jitne bhi boundary pe O hai unpe four directionally
+        // iterate karke mark karlo, wo kabhi bhi X nahi ban sakte
         Queue<int[]> que = new LinkedList<>();
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if ((i == 0 || i == row - 1 || j == 0 || j == col - 1) && matrix[i][j] == 'O') {
-                    que.add(new int[] { i, j });
-                    visited[i][j] = true;
-                }
+        boolean visited[][] = new boolean[rows][cols];
 
+        // first and last row me O ko mark karo
+        for (int j = 0; j < cols; ++j) {
+            if (ans[0][j] == 'O') {
+                visited[0][j] = true;
+                que.add(new int[] { 0, j });
+            }
+            if (ans[rows - 1][j] == 'O') {
+                visited[rows - 1][j] = true;
+                que.add(new int[] { rows - 1, j });
             }
         }
 
-        int[] x = { -1, 0, 1, 0 };
-        int[] y = { 0, 1, 0, -1 };
-
-        // mark all zeros that can be visited from zeros added to question
-
-        while (!que.isEmpty()) {
-            int size = que.size();
-            while (size-- > 0) {
-                int[] arr = que.poll();
-                int r = arr[0], c = arr[1];
-                for (int i = 0; i < 4; i++) {
-                    int newR = r + x[i], newC = c + y[i];
-                    if (newR >= 0 && newR < row && newC >= 0 && newC < col && !visited[newR][newC]
-                            && matrix[newR][newC] == 'O') {
-                        visited[newR][newC] = true;
-                        que.add(new int[] { newR, newC });
-                    }
-                }
+        // first and last col me O ko mark karo
+        for (int i = 0; i < rows; ++i) {
+            if (ans[i][0] == 'O') {
+                visited[i][0] = true;
+                que.add(new int[] { i, 0 });
+            }
+            if (ans[i][cols - 1] == 'O') {
+                visited[i][cols - 1] = true;
+                que.add(new int[] { i, cols - 1 });
             }
         }
 
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (matrix[i][j] == 'X' || !visited[i][j]) {
+        // Now perform bfs on que data
+        bfs(ans, que, visited);
+
+        // now convert all non visited O to X
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                if (!visited[i][j]) {
                     ans[i][j] = 'X';
-                } else {
-                    ans[i][j] = 'O';
                 }
             }
         }
 
         return ans;
 
+    }
+
+    public void bfs(char[][] ans, Queue<int[]> que, boolean[][] visited) {
+        int rows = ans.length;
+        int cols = ans[0].length;
+        int[] dirX = { -1, 0, 1, 0 };
+        int[] dirY = { 0, 1, 0, -1 };
+        while (!que.isEmpty()) {
+            int[] arr = que.poll();
+            int x = arr[0];
+            int y = arr[1];
+            for (int i = 0; i < 4; i++) {
+                int newX = x + dirX[i];
+                int newY = y + dirY[i];
+                if (newX >= 0 && newX < rows && newY >= 0 && newY < cols && !visited[newX][newY]
+                        && ans[newX][newY] == 'O') {
+                    visited[newX][newY] = true;
+                    que.add(new int[] { newX, newY });
+                }
+            }
+        }
     }
 
     // Number of distinct islands

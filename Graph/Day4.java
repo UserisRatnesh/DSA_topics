@@ -71,7 +71,15 @@ class Day4 {
         boolean[] visited = new boolean[v];
         for (int i = 0; i < v; ++i) {
             if (!visited[i]) {
-                if (isCycleBfs(i, adj, visited)) {
+
+                // using bfs
+
+                // if (isCycleBfs(i, adj, visited)) {
+                // return true;
+                // }
+
+                // using dfs
+                if (isCycleDfs(i, -1, adj, visited)) {
                     return true;
                 }
             }
@@ -106,7 +114,18 @@ class Day4 {
         return false;
     }
 
-    public static boolean isCycleDfs(int i, List<Integer>[] adj, boolean[] visited) {
+    public static boolean isCycleDfs(int node, int parent, List<Integer>[] adj, boolean[] visited) {
+
+        visited[node] = true;
+        for (Integer child : adj[node]) {
+            if (child == parent) {
+                continue;
+            }
+            if (visited[child] || isCycleDfs(child, node, adj, visited)) {
+                return true;
+            }
+
+        }
 
         return false;
 

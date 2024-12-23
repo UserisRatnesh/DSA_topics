@@ -1,5 +1,6 @@
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 class Day4 {
@@ -62,4 +63,53 @@ class Day4 {
         set.add(sb.toString());
 
     }
+
+    // Detect a cycle in an undirected graph
+
+    public static boolean isCycle(int v, List<Integer>[] adj) {
+
+        boolean[] visited = new boolean[v];
+        for (int i = 0; i < v; ++i) {
+            if (!visited[i]) {
+                if (isCycleBfs(i, adj, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    public static boolean isCycleBfs(int i, List<Integer>[] adj, boolean[] visited) {
+        Queue<int[]> que = new LinkedList<>();
+        que.add(new int[] { i, -1 });
+        visited[i] = true;
+
+        while (!que.isEmpty()) {
+            int[] arr = que.poll();
+            int node = arr[0];
+            int parent = arr[1];
+
+            for (Integer child : adj[node]) {
+                if (child == parent) {
+                    continue;
+                }
+                if (visited[child]) {
+                    return true;
+                }
+                que.add(new int[] { child, node });
+                visited[child] = true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isCycleDfs(int i, List<Integer>[] adj, boolean[] visited) {
+
+        return false;
+
+    }
+
 }

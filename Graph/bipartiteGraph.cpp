@@ -23,6 +23,7 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef long double lld;
 
+// using BFS
 // we can also use color vector to keep track of unvisited(uncoloredd)
 bool bfs(int i, vector<int> adj[], vector<bool> &vis, vector<int> &color) {
   queue<pair<int, int>> que;
@@ -54,14 +55,32 @@ bool bfs(int i, vector<int> adj[], vector<bool> &vis, vector<int> &color) {
   return true;
 }
 
+// using DFS
+
+bool dfs(int node, vector<int> adj[], vector<int> &color) {
+
+  for (int child : adj[node]) {
+    if (color[child] == -1) {
+      // not visited
+      color[child] = color[node] ^ 1;
+      if (!dfs(child, adj, color)) {
+        return false;
+      }
+    } else if (color[child] != -1 && color[child] == color[node]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool isBipartite(int v, vector<int> adj[]) {
   vector<int> color(v, -1);
-  vector<bool> vis(v, false);
-
   for (int i = 0; i < v; ++i) {
-    if (!vis[i]) {
+    if (color[i] == -1) {
       // bfs call
-      if (!bfs(i, adj, vis, color)) {
+      color[i] = 0;
+      if (!dfs(i, adj, color)) {
         return false;
       }
     }

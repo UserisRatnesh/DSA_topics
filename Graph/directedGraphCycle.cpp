@@ -23,7 +23,7 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef long double lld;
 
-// Detect cycle in a directed graph
+// Detect cycle in a directed graph using Kahn's algorithm
 bool isCycle(int n, vector<int> adj[]) {
   // I will use kahn's algorithm
   vector<int> indegree(n, 0);
@@ -54,6 +54,41 @@ bool isCycle(int n, vector<int> adj[]) {
   }
 
   return ans.size() != n;
+}
+
+// Detect cycle in a directed graph using simple dfs different from kahn's
+// algorithm
+
+bool helper(int node, vector<int> adj[], vector<bool> &vis,
+            vector<bool> &pathVisited) {
+  vis[node] = true;
+  pathVisited[node] = true;
+  for (int child : adj[node]) {
+    if (pathVisited[child]) {
+      return true;
+    }
+    if (helper(child, adj, vis, pathVisited)) {
+      return true;
+    }
+  }
+
+  pathVisited[node] = false;
+
+  return false;
+}
+
+bool isCycleDFS(int n, vector<int> adj[]) {
+
+  vector<bool> vis(n, false);
+  vector<bool> pathVisited(n, false);
+  for (int i = 0; i < n; ++i) {
+    if (!vis[i]) {
+      if (helper(i, adj, vis, pathVisited)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 int main() {

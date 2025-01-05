@@ -57,6 +57,52 @@ vector<int> eventualSafeNodes(int v, vector<int> adj[]) {
   return ans;
 }
 
+// using kahn algorithm
+// This is will not all the nodes that are part of cycle and that are pointing
+// to cycle
+
+vector<int> eventualSafeNodesUsingKahn(int v, vector<int> adj[]) {
+
+  // we have to find indegree so reverse the nodes connections
+  vector<int> revAdj[v];
+  for (int i = 0; i < v; i++) {
+    for (int child : adj[i]) {
+      revAdj[child].pb(i);
+    }
+  }
+
+  vector<int> indeg(v, 0);
+  for (int i = 0; i < v; i++) {
+    for (int child : revAdj[i]) {
+      indeg[child]++;
+    }
+  }
+
+  queue<int> que;
+  for (int i = 0; i < v; i++) {
+    if (indeg[i] == 0) {
+      que.push(i);
+    }
+  }
+
+  vector<int> ans;
+  while (!que.empty()) {
+    int node = que.front();
+    que.pop();
+    ans.pb(node);
+
+    for (int child : revAdj[node]) {
+      indeg[child]--;
+      if (indeg[child] == 0) {
+        que.push(child);
+      }
+    }
+  }
+
+  sort(ans.begin(), ans.end());
+  return ans;
+}
+
 int main() {
   fastio(); // To enable fast IO.
 }

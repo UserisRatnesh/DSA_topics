@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <set>
 using namespace std;
 
@@ -24,6 +25,7 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef long double lld;
 
+// This is giving TLE on Leetcode
 vector<vector<string>> findSequences(string beginWord, string endWord,
                                      vector<string> &wordList) {
 
@@ -81,6 +83,91 @@ vector<vector<string>> findSequences(string beginWord, string endWord,
       }
     }
   }
+
+  return ans;
+}
+
+// Optimized solution for Leetcode
+
+void dfs(string str, string &beginWord, map<string, int> &mpp,
+         vector<string> vec, vector<vector<string>> &ans) {
+
+  if (str == beginWord) {
+    reverse(all(vec));
+    ans.pb(vec);
+    return;
+  }
+
+  int steps = mpp[str];
+
+  for (int i = 0; i < str.size(); ++i) {
+    char original = str[i];
+    for (char c = 'a'; c <= 'z'; c++) {
+      if (c == original) {
+        continue;
+      }
+      str[i] = c;
+      if (mpp.find(str) != mpp.end() && mpp[str] == steps - 1) {
+        vec.pb(str);
+        dfs(str, beginWord, mpp, vec, ans);
+        vec.ppb();
+      }
+    }
+    str[i] = original;
+  }
+}
+
+vector<vector<string>> findSequencesBetter(string beginWord, string endWord,
+                                           vector<string> &wordList) {
+  set<string> st(wordList.begin(), wordList.end());
+
+  vector<vector<string>> ans;
+  if (beginWord == endWord) {
+    ans.pb({beginWord});
+    return ans;
+  }
+
+  if (st.find(endWord) == st.end()) {
+    return ans;
+  }
+
+  map<string, int> mpp;
+  mpp[beginWord] = 0;
+  queue<string> que;
+  que.push(beginWord);
+  st.erase(beginWord);
+  while (!que.empty()) {
+    string str = que.front();
+    int step = mpp[str];
+    que.pop();
+
+    if (str == endWord) {
+      break;
+    }
+    for (int i = 0; i < str.size(); ++i) {
+      char original = str[i];
+      for (char c = 'a'; c <= 'z'; c++) {
+        if (c == original) {
+          continue;
+        }
+        str[i] = c;
+        if (st.find(str) != st.end()) {
+          que.push(str);
+          st.erase(str);
+          mpp[str] = step + 1;
+        }
+      }
+      str[i] = original;
+    }
+  }
+
+  if (mpp.find(endWord) == mpp.end()) {
+    return ans;
+  }
+
+  vector<string> temp;
+  temp.pb(endWord);
+  dfs(endWord, beginWord, mpp, temp, ans);
 
   return ans;
 }

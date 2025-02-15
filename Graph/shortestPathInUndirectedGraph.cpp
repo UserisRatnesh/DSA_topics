@@ -24,6 +24,9 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef long double lld;
 
+// NOTE: DFS approach only works if it does not have negative cycle
+// If it has negative cycle then will lead to infinite loop
+// And here it does not hvae negative cycle since the it is unit weighted graph
 void dfs(int start, vector<int> adj[], vector<int> &ans) {
   for (int child : adj[start]) {
     int currCost = ans[start] + 1;
@@ -54,6 +57,57 @@ vector<int> shortestPath(vector<vector<int>> &edges, int n, int m) {
   }
 
   return ans;
+}
+
+// NOTE: BFS approach
+
+vector<int> shortesPath_bfs(vector<vector<int>> &edges, int n, int m) {
+  vector<int> adj[n];
+  for (int i = 0; i < m; ++i) {
+    int u = edges[i][0];
+    int v = edges[i][1];
+    adj[u].pb(v);
+    adj[v].pb(u);
+  }
+
+  vector<int> dist(n, INT_MAX);
+  dist[0] = 0;
+
+  // DFS
+  queue<pair<int, int>> que;
+  que.push({0, 0});
+  while (!que.empty()) {
+    int node = que.front().first;
+    int cost = que.front().second;
+    que.pop();
+
+    for (auto child : adj[node]) {
+
+      // HACK: Agar comment kiya hua code use karenge to negative cycle me phir
+      // se infinite loop chal jayega, kyoki negative weight har baar cost ko
+      // reduce kar dega
+      // And here it will not cause any problem since it is unit weighted graph
+      // So we can use either of two
+
+      // if (cost + 1 < dist[child]) {
+      //   dist[child] = cost + 1;
+      //   que.push({child, cost + 1});
+      // }
+
+      if (dist[child] == INT_MAX) {
+        dist[child] = cost + 1;
+        que.push({child, cost + 1});
+      }
+    }
+  }
+
+  for (auto &it : dist) {
+    if (it == INT_MAX) {
+      it = -1;
+    }
+  }
+
+  return dist;
 }
 
 int main() {

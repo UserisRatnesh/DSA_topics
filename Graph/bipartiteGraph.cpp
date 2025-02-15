@@ -25,9 +25,8 @@ typedef long double lld;
 
 // using BFS
 // we can also use color vector to keep track of unvisited(uncoloredd)
-bool bfs(int i, vector<int> adj[], vector<bool> &vis, vector<int> &color) {
+bool bfs(int i, vector<int> adj[], vector<int> &color) {
   queue<pair<int, int>> que;
-  vis[i] = true;
   que.push({i, -1});
   color[i] = 0; // assign a color
 
@@ -42,13 +41,11 @@ bool bfs(int i, vector<int> adj[], vector<bool> &vis, vector<int> &color) {
         continue;
       }
 
-      if (vis[child] && color[child] == col) {
-        return false;
-      }
-      if (!vis[child]) {
-        vis[child] = true;
-        color[child] = col ^ 1;
+      if (color[child] == -1) {
+        color[child] = color[node] ^ 1;
         que.push({child, node});
+      } else if (color[child] == color[node]) {
+        return false;
       }
     }
   }

@@ -122,7 +122,7 @@ int search(vector<int> &nums, int target) {
   return -1;
 }
 
-// NOTE: Binary search in rotated array
+// NOTE: Binary search in rotated array with distinct values
 
 int binarySearch(vector<int> &nums, int low, int high, int target) {
   if (low > high) {
@@ -172,7 +172,7 @@ int search_rotated(vector<int> &nums, int target) {
   return ans;
 }
 
-// NOTE: Binary search in rotated array
+// NOTE: Binary search in rotated array with distinct values
 // TC: O(logN)
 int search_rotated_optimal(vector<int> &nums, int target) {
   int n = nums.size();
@@ -203,6 +203,44 @@ int search_rotated_optimal(vector<int> &nums, int target) {
   }
 
   return -1;
+}
+
+// NOTE : Binary search in rotated array with DUPLICATE values
+bool search_rotated_II(vector<int> &nums, int target) {
+  int n = nums.size();
+
+  int low = 0;
+  int high = n - 1;
+
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
+    if (nums[mid] == target) {
+      return true;
+    }
+
+    if (nums[low] == nums[mid] && nums[mid] == nums[high]) {
+      low++;
+      high--;
+      continue;
+    }
+
+    if (nums[low] <= nums[mid]) {
+      if (target >= nums[low] && target < nums[mid]) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    } else {
+      if (target > nums[mid] && target <= nums[high]) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+  }
+
+  return false;
 }
 
 int main() {

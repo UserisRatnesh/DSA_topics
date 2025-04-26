@@ -162,6 +162,9 @@ double median(vector<int> &A, vector<int> &B) {
   }
 }
 
+// Why need of that n1 > n2 condition ?
+// We can avoid this by precisely calculating minimum and maximum value that low
+// and high can hold
 double median_binary_search(vector<int> &A, vector<int> &B) {
 
   int n1 = A.size();
@@ -180,6 +183,12 @@ double median_binary_search(vector<int> &A, vector<int> &B) {
 
   int low = 0;
   int high = n1;
+  /*
+   * NOTE: If we use this low and high then we can avoid that above (n1> n2)
+   * condition for recuriosn with fun(B,A)
+   * int low = max(0, half-n2);
+   * int high = min(n1, half);
+   */
 
   while (low <= high) {
     int mid = low + (high - low) / 2;

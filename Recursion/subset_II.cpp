@@ -113,6 +113,18 @@ void helper(int index, vector<int> &nums, vector<int> &vec,
   helper(index + 1, nums, vec, ans);
   vec.pop_back();
 
+  // NOTE: What if all elements are equal to nums[index]
+  // then helper(i, nums, vec,ans) will never be called since it will go out of
+  // bound. Therefore, it will miss some of the subsets.
+  /*
+  for (int i = index + 1; i < nums.size(); i++) {
+    if (nums[i] != nums[index]) {
+      helper(i, nums, vec, ans);
+    }
+  }
+  */
+
+  // NOTE: Therefore this is correct way.
   int i = index + 1;
   while (i < nums.size() && nums[i] == nums[index]) {
     i++;

@@ -118,13 +118,32 @@ void helper(int index, vector<int> candidates, vector<int> &currcomb,
   // If i am not picking the curr element then i have to
   // avoid picking all it's
   // appearances
-  for (int i = index + 1; i < candidates.size(); i++) {
-    if (candidates[i] != candidates[index]) {
+  //
 
-      helper(i, candidates, currcomb, ans, target);
-      break;
-    }
+  // NOTE: What if there is no such element which is not equal to curr element
+  // then this not pick helper call will never be called.
+  // therefore Second is correct.
+  // It might be possible for this question that First also passes all test case
+  // But Second is best approach.
+  /*
+   // NOTE: First
+
+for (int i = index + 1; i < candidates.size(); i++) {
+  if (candidates[i] != candidates[index]) {
+
+    helper(i, candidates, currcomb, ans, target);
+    break;
   }
+}
+*/
+
+  // NOTE: Second
+  int i = index + 1;
+  while (i < candidates.size() && candidates[i] == candidates[index]) {
+    i++;
+  }
+
+  helper(i, candidates, currcomb, ans, target);
 }
 
 vector<vector<int>> combinationSum(vector<int> &candidates, int target) {

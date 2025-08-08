@@ -192,6 +192,55 @@ string minWindow_op(string s, string t) {
   return (sIndex == -1) ? "" : s.substr(sIndex, minLen);
 }
 
+// self practice
+string fun(string s, string t) {
+
+  int minLen = INT_MAX;
+  int sIndex = -1;
+
+  vector<int> freq(256, 0);
+
+  for (auto it : t) {
+    freq[it]++;
+  }
+
+  int n = s.size();
+  int right = 0;
+  int left = 0;
+  int len = 0;
+
+  while (right < n) {
+
+    if (freq[s[right]] > 0) {
+      len++;
+    }
+    freq[s[right]]--;
+
+    while (len == t.size()) { // yani saare element mil chuke hai
+      if (right - left + 1 < minLen) {
+        sIndex = left;
+        minLen = right - left + 1;
+      }
+
+      // shrink yani left char ki requirement badhana
+      freq[s[left]]++;
+      if (freq[s[left]] > 0) { // Yani ek element aur chahiye to create string
+                               // t, therefore len decrease
+        len--;
+      }
+      left++;
+    }
+
+    right++;
+  }
+
+  if (sIndex == -1) {
+    return "";
+  }
+
+  return s.substr(sIndex, minLen);
+}
+
 int main() {
 #ifndef ONLINE_JUDGE
   freopen("Error.txt", "w", stderr);

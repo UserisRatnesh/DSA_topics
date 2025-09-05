@@ -102,96 +102,202 @@ template <class T, class V> void _print(map<T, V> v) {
 
 */
 
-// NOTE: Recursion
-// TC: O(2^n) SC: (n) -> stack space
-int helper(int index, vector<int> &arr, int n, int buy, int ops) {
+// HACK: Done using k transactions
+//  NOTE: Recursion
+//  TC: O(2^n) SC: (n) -> stack space
+int helper(int index, vector<int> &prices, int n, int buy, int k) {
   // Jaise hi zero operations bacha return zero
-  if (ops == 0 || index >= n) {
+  if (k == 0 || index >= n) {
     return 0;
   }
 
   int profit = 0;
   if (buy) {
-    profit = -arr[index] + helper(index + 1, arr, n, 0, ops + 1);
+    profit = -prices[index] + helper(index + 1, prices, n, 0, k);
   } else {
-    profit = arr[index] + helper(index + 1, arr, n, 1, ops + 1);
+    profit = prices[index] + helper(index + 1, prices, n, 1, k - 1);
   }
 
-  int do_nothing = helper(index + 1, arr, n, buy, ops);
+  int do_nothing = helper(index + 1, prices, n, buy, k);
 
   return max(profit, do_nothing);
 }
 
-int stock_recursion(vector<int> &arr, int n, int k) {
-  return helper(0, arr, n, 1, 2 * k);
+int stock_recursion(vector<int> &prices, int n, int k) {
+  return helper(0, prices, n, 1, k);
 }
 
 // NOTE: Memoization
 // TC: O(n*2*4) SC: O(n*2*5) + (n) -> stack space
-int memo_helper(int index, vector<int> &arr, int n, int buy, int ops,
+int memo_helper(int index, vector<int> &prices, int n, int buy, int k,
                 vector<vector<vector<int>>> &dp) {
 
   // Jaise hi zero operations bacha return zero
-  if (ops == 0 || index >= n) {
+  if (k == 0 || index >= n) {
     return 0;
   }
 
-  if (dp[index][buy][ops] != -1) {
-    return dp[index][buy][ops];
+  if (dp[index][buy][k] != -1) {
+    return dp[index][buy][k];
   }
 
   int profit = 0;
   if (buy) {
-    profit = -arr[index] + memo_helper(index + 1, arr, n, 0, ops - 1, dp);
+    profit = -prices[index] + memo_helper(index + 1, prices, n, 0, k, dp);
   } else {
-    profit = arr[index] + memo_helper(index + 1, arr, n, 1, ops - 1, dp);
+    profit = prices[index] + memo_helper(index + 1, prices, n, 1, k - 1, dp);
   }
 
-  int do_nothing = memo_helper(index + 1, arr, n, buy, ops, dp);
+  int do_nothing = memo_helper(index + 1, prices, n, buy, k, dp);
 
   int result = max(profit, do_nothing);
-  dp[index][buy][ops] = result;
+  dp[index][buy][k] = result;
 
   return result;
 }
 
-int memo(vector<int> &arr, int n, int k) {
+int memo(vector<int> &prices, int n, int k) {
   vector<vector<vector<int>>> dp(
-      n, vector<vector<int>>(2, vector<int>(2 * k + 1, -1)));
-  return memo_helper(0, arr, n, 1, 2 * k, dp);
+      n, vector<vector<int>>(2, vector<int>(k + 1, -1)));
+  return memo_helper(0, prices, n, 1, k, dp);
 }
 
 // NOTE: Tabulation
 //  TC: O(n*2*4) SC: O(n*2*5)
-int tabulation(vector<int> &arr, int n, int k) {
-  vector<vector<vector<int>>> dp(
-      n + 1, vector<vector<int>>(2, vector<int>(2 * k + 1, 0)));
+int tabulation(vector<int> &prices, int n, int k) {
+  vector<vector<vector<int>>> dp(n + 1,
+                                 vector<vector<int>>(2, vector<int>(k + 1, 0)));
 
   for (int index = n - 1; index >= 0; index--) {
     for (int buy = 0; buy <= 1; buy++) {
-      for (int ops = 1; ops <= 2 * k; ops++) {
+      for (int ops = 1; ops <= k; ops++) {
         if (buy) {
           dp[index][buy][ops] = max(dp[index + 1][buy][ops],
-                                    -arr[index] + dp[index + 1][0][ops - 1]);
+                                    -prices[index] + dp[index + 1][0][ops]);
         } else {
           dp[index][buy][ops] = max(dp[index + 1][buy][ops],
-                                    arr[index] + dp[index + 1][1][ops - 1]);
+                                    prices[index] + dp[index + 1][1][ops - 1]);
         }
       }
     }
   }
 
-  return dp[0][1][2 * k];
+  return dp[0][1][k];
 }
 
 // NOTE: Space optimization
 //  TC: O(n*2*4) SC: O(2*5)
 int space_op(vector<int> &prices, int n, int k) {
 
+  vector<vector<int>> ahead(2, vector<int>(k + 1, 0));
+
+  for (int index = n - 1; index >= 0; index--) {
+    vector<vector<int>> temp(2, vector<int>(k + 1, 0));
+
+    for (int buy = 0; buy <= 1; buy++) {
+      for (int ops = 1; ops <= k; ops++) {
+        if (buy) {
+          temp[buy][ops] = max(ahead[buy][ops], -prices[index] + ahead[0][ops]);
+        } else {
+          temp[buy][ops] =
+              max(ahead[buy][ops], prices[index] + ahead[1][ops - 1]);
+        }
+      }
+    }
+
+    ahead = temp;
+  }
+
+  return ahead[1][k];
+}
+
+// HACK: Done using 2*k transactions
+//  NOTE: Recursion
+//  TC: O(2^n) SC: (n) -> stack space
+int helper(int index, vector<int> &prices, int n, int k) {
+  // Jaise hi zero operations bacha return zero
+  if (k == 0 || index >= n) {
+    return 0;
+  }
+
+  int profit = 0;
+  if (k % 2 == 0) {
+    profit = -prices[index] + helper(index + 1, prices, n, k - 1);
+  } else {
+    profit = prices[index] + helper(index + 1, prices, n, k - 1);
+  }
+
+  int do_nothing = helper(index + 1, prices, n, k);
+
+  return max(profit, do_nothing);
+}
+
+int stock_recur(vector<int> &prices, int n, int k) {
+  return helper(0, prices, n, 2 * k);
+}
+
+// NOTE: Memoization
+// TC: O(n*2*4) SC: O(n*2*5) + (n) -> stack space
+int memo_helper(int index, vector<int> &prices, int n, int k,
+                vector<vector<int>> &dp) {
+
+  // Jaise hi zero operations bacha return zero
+  if (k == 0 || index >= n) {
+    return 0;
+  }
+
+  if (dp[index][k] != -1) {
+    return dp[index][k];
+  }
+
+  int profit = 0;
+  if (k % 2 == 0) {
+    profit = -prices[index] + memo_helper(index + 1, prices, n, k - 1, dp);
+  } else {
+    profit = prices[index] + memo_helper(index + 1, prices, n, k - 1, dp);
+  }
+
+  int do_nothing = memo_helper(index + 1, prices, n, k, dp);
+
+  int result = max(profit, do_nothing);
+
+  return dp[index][k] = result;
+}
+
+int memo_second(vector<int> &prices, int n, int k) {
+  vector<vector<int>> dp(n, vector<int>(2 * k + 1, -1));
+  return memo_helper(0, prices, n, 2 * k, dp);
+}
+
+// NOTE: Tabulation
+//  TC: O(n*2*4) SC: O(n*2*5)
+int tabulation_second(vector<int> &prices, int n, int k) {
+  vector<vector<int>> dp(n + 1, vector<int>(2 * k + 1, 0));
+
+  for (int index = n - 1; index >= 0; index--) {
+    for (int ops = 1; ops <= 2 * k; ops++) {
+      if (ops % 2 == 0) {
+        dp[index][ops] =
+            max(dp[index + 1][ops], -prices[index] + dp[index + 1][ops - 1]);
+      } else {
+        dp[index][ops] =
+            max(dp[index + 1][ops], prices[index] + dp[index + 1][ops - 1]);
+      }
+    }
+  }
+
+  return dp[0][2 * k];
+}
+
+// NOTE: Space optimization
+//  TC: O(n*2*4) SC: O(2*5)
+int space_op_second(vector<int> &prices, int n, int k) {
+
   vector<int> ahead(2 * k + 1, 0);
 
   for (int index = n - 1; index >= 0; index--) {
     vector<int> temp(2 * k + 1, 0);
+
     for (int ops = 1; ops <= 2 * k; ops++) {
       if (ops % 2 == 0) {
         temp[ops] = max(ahead[ops], -prices[index] + ahead[ops - 1]);
@@ -204,30 +310,6 @@ int space_op(vector<int> &prices, int n, int k) {
   }
 
   return ahead[2 * k];
-}
-
-// NOTE: Sapce optimization other way using k transaction
-int stockBuySell(vector<int> prices, int n, int k) {
-  vector<vector<int>> ahead(2, vector<int>(k + 1, 0));
-
-  for (int index = n - 1; index >= 0; index--) {
-    vector<vector<int>> temp(2, vector<int>(k + 1, 0));
-    for (int buy = 0; buy <= 1; buy++) {
-      for (int ops = 1; ops <= k; ops++) {
-        if (buy) {
-          temp[buy][ops] =
-              max(ahead[buy][ops], -prices[index] + ahead[0][ops - 1]);
-        } else {
-          temp[buy][ops] =
-              max(ahead[buy][ops], prices[index] + ahead[1][ops - 1]);
-        }
-      }
-    }
-
-    ahead = temp;
-  }
-
-  return ahead[1][2 * k];
 }
 
 int main() {

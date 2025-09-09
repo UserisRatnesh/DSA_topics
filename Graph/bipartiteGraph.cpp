@@ -25,45 +25,42 @@ typedef long double lld;
 
 // using BFS
 // we can also use color vector to keep track of unvisited(uncoloredd)
-bool bfs(int i, vector<int> adj[], vector<int> &color) {
-  queue<pair<int, int>> que;
-  que.push({i, -1});
-  color[i] = 0; // assign a color
+
+bool bfs(int node, vector<int> adj[], vector<int> &colors) {
+  queue<int> que;
+  que.push(node);
+  colors[node] = 0;
 
   while (!que.empty()) {
-    pair<int, int> p = que.front();
+    int u = que.front();
     que.pop();
-    int node = p.first;
-    int parent = p.second;
-    int col = color[node];
-    for (int child : adj[node]) {
-      if (child == parent) {
-        continue;
-      }
 
-      if (color[child] == -1) {
-        color[child] = color[node] ^ 1;
-        que.push({child, node});
-      } else if (color[child] == color[node]) {
+    for (auto child : adj[u]) {
+      if (colors[child] == -1) { // can not be parent
+        // not visited
+        colors[child] = 1 ^ colors[u];
+        que.push(child);
+      } else if (colors[child] == colors[u]) {
         return false;
       }
     }
   }
+
   return true;
 }
 
 // using DFS
 
-bool dfs(int node, vector<int> adj[], vector<int> &color) {
+bool dfs(int node, vector<int> adj[], vector<int> &colors) {
 
   for (int child : adj[node]) {
-    if (color[child] == -1) {
+    if (colors[child] == -1) {
       // not visited
-      color[child] = color[node] ^ 1;
-      if (!dfs(child, adj, color)) {
+      colors[child] = colors[node] ^ 1;
+      if (!dfs(child, adj, colors)) {
         return false;
       }
-    } else if (color[child] != -1 && color[child] == color[node]) {
+    } else if (colors[child] == colors[node]) {
       return false;
     }
   }
@@ -72,12 +69,12 @@ bool dfs(int node, vector<int> adj[], vector<int> &color) {
 }
 
 bool isBipartite(int v, vector<int> adj[]) {
-  vector<int> color(v, -1);
+  vector<int> colors(v, -1);
   for (int i = 0; i < v; ++i) {
-    if (color[i] == -1) {
-      // bfs call
-      color[i] = 0;
-      if (!dfs(i, adj, color)) {
+    if (colors[i] == -1) {
+      // dfs call
+      colors[i] = 0;
+      if (!dfs(i, adj, colors)) {
         return false;
       }
     }

@@ -309,6 +309,86 @@ int space_op_second(vector<int> &prices, int n) {
   return ahead[4];
 }
 
+// NOTE: Done using countSells
+
+int helper(int index, int canBuy, int countSells, vector<int> &arr,
+           vector<vector<vector<int>>> &dp) {
+  int n = arr.size();
+  if (index == n || countSells >= 2) {
+    return 0;
+  }
+
+  if (dp[index][canBuy][countSells] != -1) {
+    return dp[index][canBuy][countSells];
+  }
+  int profit = INT_MIN;
+  if (canBuy) {
+    int pass = helper(index + 1, canBuy, countSells, arr, dp);
+    int buy = -arr[index] + helper(index + 1, 0, countSells, arr, dp);
+    profit = max(pass, buy);
+  } else {
+    int pass = helper(index + 1, canBuy, countSells, arr, dp);
+    int sell = arr[index] + helper(index + 1, 1, countSells + 1, arr, dp);
+    profit = max(pass, sell);
+  }
+
+  return dp[index][canBuy][countSells] = profit;
+}
+
+int stockBuySell_rec(vector<int> &arr, int n) {
+
+  vector<vector<vector<int>>> dp(n + 1,
+                                 vector<vector<int>>(2, vector<int>(2, -1)));
+  return helper(0, 1, 0, arr, dp);
+}
+
+// NOTE: Tabulation
+int stockBuySell(vector<int> &arr, int n) {
+
+  vector<vector<vector<int>>> dp(n + 1,
+                                 vector<vector<int>>(2, vector<int>(3, 0)));
+
+  for (int i = n - 1; i >= 0; i--) {
+    for (int buy = 0; buy < 2; buy++) {
+      for (int countSells = 0; countSells < 2; countSells++) {
+        if (buy == 0) {
+          dp[i][buy][countSells] = max(dp[i + 1][buy][countSells],
+                                       arr[i] + dp[i + 1][1][countSells + 1]);
+        } else {
+          dp[i][buy][countSells] = max(dp[i + 1][buy][countSells],
+                                       -arr[i] + dp[i + 1][0][countSells]);
+        }
+      }
+    }
+  }
+
+  return dp[0][1][0];
+}
+
+// NOTE: Space optimzation
+int stockBuySell_Space(vector<int> &arr, int n) {
+
+  vector<vector<int>> next(2, vector<int>(3, 0));
+
+  for (int i = n - 1; i >= 0; i--) {
+    vector<vector<int>> temp(2, vector<int>(3, 0));
+    for (int buy = 0; buy < 2; buy++) {
+      for (int countSells = 0; countSells < 2; countSells++) {
+        if (buy == 0) {
+          temp[buy][countSells] =
+              max(next[buy][countSells], arr[i] + next[1][countSells + 1]);
+        } else {
+          temp[buy][countSells] =
+              max(next[buy][countSells], -arr[i] + next[0][countSells]);
+        }
+      }
+    }
+    next = temp;
+  }
+
+  return next[1][0];
+}
+
 int main() {
 #ifndef ONLINE_JUDGE
   freopen("Error.txt", "w", stderr);

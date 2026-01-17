@@ -165,26 +165,26 @@ bool isSubsetSum_memo(vector<int> &arr, int target) {
 bool tabulation(vector<int> &arr, int target) {
 
   int n = arr.size();
-  vector<vector<bool>> dp(n, vector<bool>(target + 1, false));
-
-  // Base case ->  When target == 0
-  for (int i = 0; i < n; i++) {
-    dp[i][0] = true;
+  vector<vector<bool>> dp(n + 1, vector<bool>(target + 1, false));
+  for (int i = 0; i <= n; i++) {
+    dp[i][0] = true; // It is always possible to have sum zero
   }
 
-  // Base case -> When at last index. Can only be true if target == arr[n-1]
-  dp[n - 1][arr[n - 1]] = true;
+  for (int i = n - 1; i >= 0; i--) {
+    for (int j = target; j >= 0; j--) {
 
-  for (int index = n - 2; index >= 0; index--) {
-    for (int tempTarget = 0; tempTarget <= target; tempTarget++) {
+      bool take = 0;
+      bool notTake = 0;
 
-      bool not_pick = dp[index + 1][tempTarget];
-      bool pick = false;
-      if (tempTarget >= arr[index]) {
-        pick = dp[index + 1][tempTarget - arr[index]];
+      // Take
+      if (j - arr[i] >= 0) {
+        take = dp[i + 1][j - arr[i]];
       }
 
-      dp[index][tempTarget] = pick || not_pick;
+      // notTake
+      notTake = dp[i + 1][j];
+
+      dp[i][j] = take || notTake;
     }
   }
 
@@ -199,18 +199,17 @@ bool space_op(vector<int> &arr, int target) {
   vector<bool> next(target + 1, false);
   next[0] = true;
 
-  for (int index = n - 1; index >= 0; index--) {
-
+  for (int i = n - 1; i >= 0; i--) {
     vector<bool> temp(target + 1, false);
-    for (int tempTarget = 0; tempTarget <= target; tempTarget++) {
 
-      bool not_pick = next[tempTarget];
-      bool pick = false;
-      if (tempTarget >= arr[index]) {
-        pick = next[tempTarget - arr[index]];
+    for (int j = target; j >= 0; j--) {
+      bool notTake = next[j];
+      bool take = false;
+      if (j - arr[i] >= 0) {
+        take = next[j - arr[i]];
       }
 
-      temp[tempTarget] = pick || not_pick;
+      temp[j] = take || notTake;
     }
 
     next = temp;

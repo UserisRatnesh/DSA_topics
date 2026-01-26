@@ -146,6 +146,7 @@ int helper(int index, int target, vector<int> &arr, vector<vector<int>> &dp) {
 
   int n = arr.size();
 
+  // HACK: Method 1
   if (index == n - 1) {
     if (target == 0 && arr[index] == 0) {
       return 2;
@@ -157,6 +158,16 @@ int helper(int index, int target, vector<int> &arr, vector<vector<int>> &dp) {
 
     return 0;
   }
+
+  // HACK: Method 2
+  /*
+if (target < 0) {
+  return 0;
+}
+if (index == n) {
+  return target == 0;
+}
+*/
 
   if (dp[index][target] != -1) {
     return dp[index][target];

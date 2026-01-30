@@ -1,3 +1,4 @@
+#include <algorithm>
 #ifndef ONLINE_JUDGE
 #include "/usr/local/include/bits/stdc++.h"
 #else
@@ -195,6 +196,25 @@ int space(vector<int> &nums) {
   }
 
   return next[0];
+}
+
+// NOTE: Space optimization Better
+// HACK: Dp[i] stores what is the longest increasing subsequence that is ending
+// with element at index i
+int space_better(vector<int> &nums) {
+
+  int n = nums.size();
+  vector<int> dp(n + 1, 1);
+
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < i; j++) {
+      if (nums[i] > nums[j]) {
+        dp[i] = max(dp[i], dp[j] + 1);
+      }
+    }
+  }
+
+  return *max_element(dp.begin(), dp.end());
 }
 
 // HACK: Binary Search

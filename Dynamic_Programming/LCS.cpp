@@ -125,8 +125,8 @@ int lcs(string &s1, string &s2) { return helper(0, 0, s1, s2); }
 
 // NOTE: Memoization
 // TC:O(n*m)    SC: O(n*m) + O(n+m)
-int helper_memo(int index1, int index2, string &s1, string &s2,
-                vector<vector<int>> &dp) {
+int memo(int index1, int index2, string &s1, string &s2,
+         vector<vector<int>> &dp) {
   int n = s1.size();
   int m = s2.size();
   if (index1 == n || index2 == m) {
@@ -138,12 +138,11 @@ int helper_memo(int index1, int index2, string &s1, string &s2,
   }
 
   if (s1[index1] == s2[index2]) {
-    return dp[index1][index2] =
-               1 + helper_memo(index1 + 1, index2 + 1, s1, s2, dp);
+    return dp[index1][index2] = 1 + memo(index1 + 1, index2 + 1, s1, s2, dp);
   }
 
-  int skipFirst = helper_memo(index1 + 1, index2, s1, s2, dp);
-  int skipSecond = helper_memo(index1, index2 + 1, s1, s2, dp);
+  int skipFirst = memo(index1 + 1, index2, s1, s2, dp);
+  int skipSecond = memo(index1, index2 + 1, s1, s2, dp);
 
   return dp[index1][index2] = max(skipFirst, skipSecond);
 }
@@ -152,7 +151,7 @@ int lcs_memo(string &s1, string &s2) {
   int n = s1.size();
   int m = s2.size();
   vector<vector<int>> dp(n + 1, vector<int>(m + 1, -1));
-  return helper_memo(0, 0, s1, s2, dp);
+  return memo(0, 0, s1, s2, dp);
 }
 
 // NOTE: Tabulation

@@ -104,7 +104,7 @@ template <class T, class V> void _print(map<T, V> v) {
 
 // NOTE: Tabulation
 //  TC: O(N * N)   SC: O(N * N)
-int longestPalindromicSubsequence(string s) {
+int minInsertions(string s) {
   string s1 = s;
   string s2 = s;
   reverse(s2.begin(), s2.end());
